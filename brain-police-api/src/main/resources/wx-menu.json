@@ -1,0 +1,14 @@
+ {
+     "button":[
+	      {
+	           "name":"合肥警方",
+	           "sub_button":[
+		           {	
+			          "type":"view",
+			          "name":"报案",
+			          "url":"http://wx.police.xiaomankf.com/wechat/api/v1/wx/24/wxAuthor?url=http://wx.police.xiaomankf.com/wx/wechat/index.html"
+			       }
+	           ]
+	       }
+       ]
+ }

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kxjl.brain.police.repository.mapper.WXReportMapper">
+<insert id="insertInfo" parameterType="WXReportObject">
+    <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+        SELECT TD_REPORT_SEQ.NEXTVAL  FROM DUAL
+    </selectKey>
+    INSERT INTO TD_REPORT(
+    ID,
+    CALLCATEGORY,
+    BELONGCITY,
+    BELONGPOLICE,
+    BELONGPOSITION,
+    BELONGAREA,
+    ALARMCATEGORY,
+    ALARMTYPE,
+    ALARMDETAIL,
+    WECHATID,
+    ALARMPEOSIGN,
+    IMPORTPLOT,
+    CREATETIME
+    )VALUES(
+    #{id},
+    #{callCategory},
+    #{belongCity},
+    #{belongPolice},
+    #{belongPosition},
+    #{belongArea},
+    #{alarmCategory},
+    #{alarmType},
+    #{alarmDetail},
+    #{wechatId},
+    #{alarmPeosign},
+    #{importPlot},
+    #{createTime}
+    )
+</insert>
+    <update id="updateInfo">
+     UPDATE   TD_REPORT
+     <set>
+         <if test="callCategory!=null">
+             CALLCATEGORY=#{callCategory},
+         </if>
+         <if test="belongCity!=null">
+             BELONGCITY=#{belongCity},
+         </if>
+         <if test="belongPolice!=null">
+             BELONGPOLICE=#{belongPolice},
+         </if>
+         <if test="belongPosition!=null">
+             BELONGPOSITION=#{belongPosition},
+         </if>
+         <if test="belongArea!=null">
+             BELONGAREA=#{belongArea},
+         </if>
+         <if test="alarmCategory!=null">
+             ALARMCATEGORY=#{alarmCategory},
+         </if>
+         <if test="alarmType!=null">
+             ALARMTYPE=#{alarmType},
+         </if>
+         <if test="alarmDetail!=null">
+             ALARMDETAIL=#{alarmDetail},
+         </if>
+         <if test="alarmPeosign!=null">
+         ALARMPEOSIGN=#{alarmPeosign},
+         </if>
+         <if test="importPlot!=null">
+             IMPORTPLOT=#{importPlot}
+         </if>
+     </set>
+        WHERE ID=#{id}
+    </update>
+    <select id="queryInfo" parameterType="WXReportObject" resultType="WXReportDTO">
+        SELECT tr.ID,
+               CALLCATEGORY,
+               BELONGCITY,
+               BELONGPOLICE,
+               BELONGPOSITION,
+               BELONGAREA,
+               ALARMCATEGORY,
+               ALARMTYPE,
+               ALARMDETAIL,
+               WECHATID,
+               ALARMPEOSIGN,
+               IMPORTPLOT,
+               TO_CHAR(CREATETIME,'YYYY-MM-DD HH24:MI:SS') CREATETIME,
+               WECHATNUM,
+               NAME,
+               TELEPHONE,
+               IDCODE,
+               INCIDENTADDRESS
+        FROM TD_REPORT tr LEFT JOIN TD_WECHATALARM tw ON tr.WECHATID=tw.ID
+           <where>
+               <if test="belongPosition!=null and belongPosition!=''">
+                     BELONGPOSITION LIKE  CONCAT(CONCAT('%',#{belongPosition}),'%')
+               </if>
+               <if test="belongArea!=null and belongArea!=''">
+                   AND  BELONGAREA LIKE  CONCAT(CONCAT('%',#{belongArea}),'%')
+               </if>
+               <if test="telephone!=null and telephone!=''">
+                AND   TELEPHONE LIKE CONCAT(CONCAT('%',#{telephone}),'%')
+               </if>
+               <if test="startDateTime!=null and startDateTime!=''">
+                   AND   CREATETIME BETWEEN to_date(#{startDateTime},'yyyy-MM-dd HH24:MI:SS')
+                   AND to_date(#{endDateTime},'yyyy-MM-dd HH24:MI:SS')
+               </if>
+           </where>
+           <if test="sortName != '' and sortOrder != ''">
+              ORDER BY ${sortName} ${sortOrder}
+           </if>
+    </select>
+    <select id="queryById" resultType="WXReportDTO">
+        SELECT tr.ID,
+               CALLCATEGORY,
+               BELONGCITY,
+               BELONGPOLICE,
+               BELONGPOSITION,
+               BELONGAREA,
+               ALARMCATEGORY,
+               ALARMTYPE,
+               ALARMDETAIL,
+               WECHATID,
+               ALARMPEOSIGN,
+               IMPORTPLOT,
+               TO_CHAR(CREATETIME,'YYYY-MM-DD HH24:MI:SS') CREATETIME,
+               NAME,
+               SEX,
+               TELEPHONE,
+               IDCODE,
+               INCIDENTADDRESS,
+               ALARMADDRESS
+        FROM TD_REPORT tr LEFT JOIN TD_WECHATALARM tw ON tr.WECHATID=tw.ID
+        WHERE tr.ID=#{id}
+    </select>
+    <delete id="deleteInfo">
+        DELETE FROM TD_REPORT WHERE ID=#{id}
+    </delete>
+</mapper>

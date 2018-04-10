@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kxjl.brain.police.repository.mapper.WechatMapper">
+
+    <resultMap id="wechatCountDim" type="com.kxjl.brain.police.repository.bean.report.WechatCountDim">
+        <result column="TIME" property="time"/>
+        <result column="CONNECTNUM" property="connectNum"/>
+    </resultMap>
+
+    <select id="queryByList" parameterType="wechatAlarmObject" resultType="wechatAlarmDTO">
+          SELECT ID,
+                WECHATNUM,
+                NAME,
+                SEX,
+                TELEPHONE,
+                IDENTIFYCODE,
+                IDCODE,
+                INCIDENTADDRESS,
+                ALARMADDRESS,
+                DESCRIPTION,
+                ATTACHMENT,
+                INCIDENTLONGITUDE,
+                INCIDENTLATITUDE,
+                ALARMLONGITUDE,
+                ALARMLATITUDE,
+                STATUS,
+                TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+                NICKNAME,
+                OPENID
+          FROM TD_WECHATALARM
+          <where>
+              <if test="startDateTime != '' and startDateTime != null">
+                  ALARMDATE BETWEEN to_date(#{startDateTime},'yyyy-MM-dd HH24:MI:SS')
+                  AND to_date(#{endDateTime},'yyyy-MM-dd HH24:MI:SS')
+              </if>
+              <if test="telephone != null and telephone != ''">
+                  AND  TELEPHONE LIKE CONCAT(CONCAT('%',#{telephone}),'%')
+              </if>
+              <if test="keyWord != '' and  keyWord != null">
+                  AND  DESCRIPTION LIKE CONCAT(CONCAT('%', #{keyWord}),'%')
+              </if>
+              <if test="status != '' and  status != null">
+                  AND  STATUS = #{status}
+              </if>
+              <if test="openid != '' and  openid != null">
+                  AND  OPENID = #{openid}
+              </if>
+          </where>
+       <!-- <if test="sortName != '' and sortOrder != ''">
+            ORDER BY ${sortName} ${sortOrder}
+        </if>-->
+    </select>
+
+    <select id="queryCountByStatus" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT
+        COUNT(1)
+        FROM TD_WECHATALARM
+        WHERE STATUS = #{status}
+    </select>
+
+    <select id="queryById" parameterType="java.lang.Long" resultType="wechatAlarmDTO">
+        SELECT
+            ID,
+            WECHATNUM,
+            NAME,
+            SEX,
+            TELEPHONE,
+            IDENTIFYCODE,
+            IDCODE,
+            INCIDENTADDRESS,
+            ALARMADDRESS,
+            DESCRIPTION,
+            ATTACHMENT,
+            INCIDENTLONGITUDE,
+            INCIDENTLATITUDE,
+            ALARMLONGITUDE,
+            ALARMLATITUDE,
+            STATUS,
+            TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+            NICKNAME,
+            OPENID
+        FROM
+            TD_WECHATALARM
+        WHERE
+            ID = #{id}
+    </select>
+
+    <select id="queryDetail" parameterType="java.lang.Long" resultType="wechatAlarmDTO">
+        SELECT
+        ID,
+        WECHATNUM,
+        NAME,
+        SEX,
+        TELEPHONE,
+        IDENTIFYCODE,
+        IDCODE,
+        INCIDENTADDRESS,
+        ALARMADDRESS,
+        DESCRIPTION,
+        ATTACHMENT,
+        INCIDENTLONGITUDE,
+        INCIDENTLATITUDE,
+        ALARMLONGITUDE,
+        ALARMLATITUDE,
+        STATUS,
+        TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+        NICKNAME,
+        OPENID
+        FROM
+        TD_WECHATALARM
+        WHERE
+        ID = #{id}
+    </select>
+
+    <insert id="insertWechat" parameterType="wechatAlarmObject">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+            SELECT TD_WECHATALARM_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TD_WECHATALARM(
+            ID,
+            WECHATNUM,
+            NAME,
+            SEX,
+            TELEPHONE,
+            IDENTIFYCODE,
+            IDCODE,
+            INCIDENTADDRESS,
+            ALARMADDRESS,
+            DESCRIPTION,
+            ATTACHMENT,
+            INCIDENTLONGITUDE,
+            INCIDENTLATITUDE,
+            ALARMLONGITUDE,
+            ALARMLATITUDE,
+            STATUS,
+            ALARMDATE,
+            OPENID,
+            NICKNAME
+        )
+        VALUES(
+            #{id},
+            #{wechatnum},
+            #{name},
+            #{sex},
+            #{telephone},
+            #{identifycode},
+            #{idcode},
+            #{incidentaddress},
+            #{alarmaddress},
+            #{description},
+            #{attachment},
+            #{incidentlongitude},
+            #{incidentlatitude},
+            #{alarmlongitude},
+            #{alarmlatitude},
+            #{status},
+            #{alarmdate},
+            #{openid},
+            #{nickname}
+        )
+    </insert>
+
+        <update id="updateWechat" parameterType="wechatAlarmObject">
+
+            UPDATE TD_WECHATALARM
+            <set>
+                <if test="status != '' and  status != null" >
+                    status = #{status}
+                </if>
+
+            </set>
+          WHERE id = #{id}
+        </update>
+
+
+        <delete id="deleteWechat" parameterType="java.lang.Long">
+              DELETE TD_WECHATALARM WHERE ID = #{id}
+        </delete>
+
+        <select id="login" resultType="loginDto">
+            SELECT
+            ID,
+            ACCOUNT,
+            PASSWORD,
+            STATUS
+            FROM TD_WECHAT_LOGIN
+            WHERE ACCOUNT = #{account}
+            AND PASSWORD = #{password}
+        </select>
+
+        <select id="report" resultMap="wechatCountDim">
+            <if test='type == "h"'>
+                <![CDATA[
+                SELECT TO_CHAR(ALARMDATE, 'hh24') AS TIME , COUNT(id) AS CONNECTNUM
+                FROM TD_WECHATALARM
+                WHERE  ALARMDATE  BETWEEN TO_DATE(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+                GROUP BY TO_CHAR(ALARMDATE, 'hh24')
+                ]]>
+            </if>
+            <if test='type == "d"'>
+                <![CDATA[
+                SELECT TO_CHAR(ALARMDATE,'mm/DD')AS TIME, COUNT(id) AS CONNECTNUM
+                FROM TD_WECHATALARM
+                WHERE  ALARMDATE  BETWEEN TO_DATE(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+                GROUP BY  TO_CHAR(ALARMDATE,'mm/DD')
+                ]]>
+            </if>
+            <if test='type == "m"'>
+                <![CDATA[
+                SELECT TO_CHAR(ALARMDATE,'MM')AS TIME, COUNT(id) AS CONNECTNUM
+                FROM TD_WECHATALARM
+                WHERE  ALARMDATE  BETWEEN TO_DATE(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+                GROUP BY  TO_CHAR(ALARMDATE,'MM')
+                ]]>
+            </if>
+            <if test='type =="y"'>
+                <![CDATA[
+                SELECT TO_CHAR(ALARMDATE,'YYYY')AS TIME, COUNT(id) AS CONNECTNUM
+                FROM TD_WECHATALARM
+                WHERE  ALARMDATE  BETWEEN TO_DATE(#{startTime},'yyyy-mm-dd hh24:mi:ss') AND TO_DATE(#{endTime},'yyyy-mm-dd hh24:mi:ss')
+                GROUP BY  TO_CHAR(ALARMDATE,'YYYY')
+                ]]>
+            </if>
+        </select>
+</mapper>

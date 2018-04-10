@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kxjl.brain.police.repository.mapper.WxSignMapper">
+    <insert id="insertSign" parameterType="wxSignDTO">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+            SELECT TD_SIGN_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TD_SIGN
+        (
+          ID,CODE,NAME,STATUS
+        )VALUES(
+            #{id},
+            #{code},
+            #{name},
+            #{status}
+        )
+    </insert>
+
+    <delete id="deleteSign">
+        DELETE FROM TD_SIGN WHERE id = #{id}
+    </delete>
+
+    <select id="querySignInfo" resultType="wxSignObject">
+        SELECT ID,CODE,NAME,STATUS FROM TD_SIGN
+        <where>
+            <if test="id != '' and id != null">
+                id = #{id}
+            </if>
+        </where>
+
+    </select>
+
+    <update id="updateSignInfo" parameterType="wxSignObject">
+        UPDATE TD_SIGN
+        <set>
+            <if test="code != '' and code != null">
+                code = #{code},
+            </if>
+            <if test="name != '' and name != null">
+                name = #{name}
+            </if>
+        </set>
+        WHERE id = #{id} and status = '02'
+    </update>
+
+
+</mapper>

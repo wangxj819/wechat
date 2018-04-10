@@ -1,0 +1,21 @@
+数值数组
+$animal = array{'dog','cat','sheep'}
+$animal = array{
+    $animal[0]="dog",
+    $animal[1]="cat",
+    $animal[2]="sheep"
+}
+
+关联数组
+$aninal = array{
+   'dog' => 23,
+   'cat' => 24,
+   'sheet' => 25,
+   1 => 45,
+   2 => 36
+}
+$animal = array{
+    $animal['dog'] => 23
+}
+
+<!

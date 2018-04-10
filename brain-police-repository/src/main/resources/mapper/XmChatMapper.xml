@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kxjl.brain.police.repository.mapper.XmChatMapper">
+    <insert id="addXmChatOrder" parameterType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+            SELECT TD_XMORDER_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TD_XMORDER (
+            ID,
+            IMNO,
+            NAME,
+            SEX,
+            ADDRESS,
+            ATTACHMENT,
+            ALARMDATE,
+            OPENID,
+            STATUS,
+            CASETYPE,
+            CONTENT
+        )VALUES (
+            #{id},
+            #{imno},
+            #{name},
+            #{sex},
+            #{address},
+            #{attachment},
+            #{alarmdate},
+            #{openid},
+            #{status},
+            #{casetype},
+            #{content}
+        )
+    </insert>
+
+    <select id="queryPageXmChat" parameterType="com.kxjl.brain.police.dto.wx.XmChatDTO" resultType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+          SELECT
+             ID,
+             IMNO,
+             NAME,
+             SEX,
+             ADDRESS,
+             ATTACHMENT,
+             TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+             OPENID,
+             CASETYPE,
+             CONTENT,
+             STATUS
+             FROM TD_XMORDER
+          <where>
+              <if test="status != '' and status != null">
+                AND  status = #{status}
+              </if>
+              <if test="openid != '' and openid != null">
+                AND openid = #{openid}
+              </if>
+              <if test="startDateTime != '' and startDateTime != null">
+                AND ALARMDATE BETWEEN to_date(#{startDateTime},'yyyy-MM-dd HH24:MI:SS')
+                  AND to_date(#{endDateTime},'yyyy-MM-dd HH24:MI:SS')
+              </if>
+              <if test="content != '' and content != null">
+                  AND CONTENT LIKE CONCAT(CONCAT('%', #{content}),'%')
+              </if>
+          </where>
+        <if test="sortName != '' and sortOrder != ''">
+            ORDER BY ${sortName} ${sortOrder}
+        </if>
+    </select>
+
+    <update id="updateXmChatById" parameterType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+        UPDATE TD_XMORDER
+        <set>
+            <if test="status != '' and status != null">
+                status = #{status},
+            </if>
+            <if test="casetype != '' and casetype != null">
+                casetype = #{casetype},
+            </if>
+            <if test="content != '' and content != null">
+                content = #{content},
+            </if>
+            <if test="attachment != '' and attachment != null">
+                attachment = #{attachment}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryDataOverview" parameterType="com.kxjl.brain.police.dto.wx.XmChatDTO" resultType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+        SELECT
+        ID,
+        IMNO,
+        NAME,
+        SEX,
+        ADDRESS,
+        ATTACHMENT,
+        TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+        OPENID,
+        CASETYPE,
+        CONTENT,
+        STATUS
+        FROM TD_XMORDER
+        <where>
+            <if test="startDateTime != '' and startDateTime != null">
+                AND ALARMDATE BETWEEN to_date(#{startDateTime},'yyyy-MM-dd HH24:MI:SS')
+                AND to_date(#{endDateTime},'yyyy-MM-dd HH24:MI:SS')
+            </if>
+        </where>
+    </select>
+
+
+    <select id="queryAlarmingTrend" resultType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+        SELECT
+        TO_CHAR(ALARMDATE,'yyyy-MM-dd') ALARMDATE,
+        COUNT (*) OPENID
+        FROM TD_XMORDER
+        <where>
+            <if test="startDateTime != '' and startDateTime != null">
+                AND TO_CHAR(ALARMDATE,'yyyy-MM-dd') BETWEEN #{startDateTime}
+                AND #{endDateTime}
+                GROUP BY ALARMDATE
+            </if>
+        </where>
+    </select>
+
+    <select id="queryDetail" resultType="com.kxjl.brain.police.dto.wx.XmChatDTO">
+        SELECT
+            ID,
+            IMNO,
+            NAME,
+            SEX,
+            ADDRESS,
+            ATTACHMENT,
+            TO_CHAR(ALARMDATE,'YYYY-MM-DD HH24:MI:SS') ALARMDATE,
+            OPENID,
+            CASETYPE,
+            CONTENT,
+            STATUS
+        FROM TD_XMORDER
+        WHERE ID = #{id}
+    </select>
+</mapper>
